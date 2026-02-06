@@ -1,58 +1,111 @@
-import ast
-import sys
+"""
+Project inspection - check for requirements.txt and README.md
+"""
+
+import os
 from pathlib import Path
-from .logger import logger
-from .console import ask_confirm
+from .console import ConsoleUI
 
-def discover_dependencies(project_path: Path):
-    imports = set()
+class ProjectInspector:
+    """Inspects project for requirements.txt and README.md"""
+    
+    def __init__(self, project_path, ui: ConsoleUI):
+        self.project_path = Path(project_path)
+        self.ui = ui
+    
+    def check_requirements(self):
+        """Check if requirements.txt exists"""
+        req_file = self.project_path / "requirements.txt"
+        return req_file.exists()
+    
+    def check_readme(self):
+        """Check if README.md exists"""
+        readme_file = self.project_path / "README.md"
+        return readme_file.exists()
+    
+    def create_requirements(self):
+        """Create basic requirements.txt"""
+        req_file = self.project_path / "requirements.txt"
+        
+        if req_file.exists():
+            self.ui.print_info("requirements.txt already exists")
+            return
+        
+        # Try to detect imports (basic implementation)
+        imports = self._detect_imports()
+        
+        if imports:
+            with open(req_file, 'w') as f:
+                for imp in sorted(imports):
+                    f.write(f"{imp}\n")
+            self.ui.print_success(f"Created requirements.txt with {len(imports)} packages")
+        else:
+            # Create empty requirements.txt
+            with open(req_file, 'w') as f:
+                f.write("# Add your dependencies here\n")
+            self.ui.print_success("Created empty requirements.txt")
+    
+    def create_readme(self):
+        """Create basic README.md"""
+        readme_file = self.project_path / "README.md"
+        
+        if readme_file.exists():
+            self.ui.print_info("README.md already exists")
+            return
+        
+        project_name = self.project_path.name
+        
+        content = f"""# {project_name}
 
-    for py_file in project_path.rglob("*.py"):
-        try:
-            tree = ast.parse(py_file.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+                    ## Description
 
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                for n in node.names:
-                    imports.add(n.name.split(".")[0])
-            elif isinstance(node, ast.ImportFrom) and node.module:
-                imports.add(node.module.split(".")[0])
+                    Add your project description here.
 
-    stdlib = set(sys.builtin_module_names)
-    return sorted(i for i in imports if i not in stdlib)
+                    ## Installation
 
-def handle_requirements(project_path: Path, auto: bool):
-    req = project_path / "requirements.txt"
+                    ```bash
+                    pip install -r requirements.txt
+                    ```
 
-    if req.exists():
-        logger.info("requirements.txt found ✔")
-        return
+                    ## Usage
 
-    logger.warning("requirements.txt missing")
+                    Add usage instructions here.
 
-    if not auto and not ask_confirm("Create requirements.txt automatically?"):
-        return
+                    ## License
 
-    deps = discover_dependencies(project_path)
-    if deps:
-        req.write_text("\n".join(deps))
-        logger.info("requirements.txt created")
-
-def handle_readme(project_path: Path, auto: bool):
-    readme = project_path / "README.md"
-
-    if readme.exists():
-        logger.info("README.md found ✔")
-        return
-
-    logger.warning("README.md missing")
-
-    if not auto and not ask_confirm("Create README.md?"):
-        return
-
-    readme.write_text(
-        f"# {project_path.name}\n\nPackaged using **pyshare** 🚀"
-    )
-    logger.info("README.md created")
+                    Add license information here.
+                    """
+        
+        with open(readme_file, 'w') as f:
+            f.write(content)
+        
+        self.ui.print_success("Created README.md")
+    
+    def _detect_imports(self):
+        """Detect Python imports in the project (basic implementation)"""
+        imports = set()
+        
+        for root, dirs, files in os.walk(self.project_path):
+            # Skip common directories
+            dirs[:] = [d for d in dirs if d not in ['__pycache__', '.venv', 'venv', 'node_modules']]
+            
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = Path(root) / file
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            for line in f:
+                                line = line.strip()
+                                if line.startswith('import ') or line.startswith('from '):
+                                    parts = line.split()
+                                    if len(parts) >= 2:
+                                        module = parts[1].split('.')[0]
+                                        # Skip standard library modules
+                                        if module not in ['os', 'sys', 'json', 'time', 'datetime', 
+                                                         're', 'math', 'random', 'collections',
+                                                         'itertools', 'functools', 'pathlib']:
+                                            imports.add(module)
+                    except:
+                        pass
+        
+        return imports

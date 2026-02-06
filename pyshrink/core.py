@@ -1,52 +1,110 @@
-from pathlib import Path
+"""
+Core orchestrator - coordinates all operations
+"""
 import shutil
+from datetime import datetime
+import sys
+from pathlib import Path
 from .cli import parse_args
-from .console import banner, ask_path, ask_confirm
-from .logger import log_structure, console
-from .inspector import handle_requirements, handle_readme
-from .cleaner import scan_cleanup, apply_cleanup
-from .packager import zip_project
+from .console import ConsoleUI
+from .cleaner import ProjectCleaner
+from .inspector import ProjectInspector
+from .packager import ProjectPackager
 
-def run():
-    banner()
-    args = parse_args()
+class PyShrinkCore:
+    """Main application orchestrator"""
+    
+    def __init__(self):
+        self.ui = ConsoleUI()
+        self.args = parse_args()
+    
+    def run(self):
+        """Run the application"""
+        # Print banner
+        self.ui.print_banner()
+        
+        # Get project path
+        if self.args.path:
+            project_path = Path(self.args.path).resolve()
+        else:
+            # Interactive mode - ask for path
+            path_input = self.ui.ask_input("Enter project path")
+            project_path = Path(path_input).resolve()
+        
+        # Validate path
+        if not project_path.exists():
+            self.ui.print_error(f"Path does not exist: {project_path}")
+            sys.exit(1)
+        
+        if not project_path.is_dir():
+            self.ui.print_error(f"Path is not a directory: {project_path}")
+            sys.exit(1)
+        
+        self.ui.print_info(f"📂 Project: {project_path}")
+        print()
 
-    project_path = Path(args.path or ask_path()).resolve()
-    safe_copy_path = project_path.parent / f"{project_path.name}_PYSHARE"
+        # Create clone directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        clone_path = project_path.parent / f"{project_path.name}_pyshrink_{timestamp}"
 
-    # Step 1: Copy project to a new folder
-    if safe_copy_path.exists():
-        console.print(f"[yellow]Folder {safe_copy_path} already exists, removing it first...[/]")
-        shutil.rmtree(safe_copy_path)
+        self.ui.print_info(f"📄 Creating working copy: {clone_path}")
 
-    console.print(f"[green]Creating a safe copy at {safe_copy_path}[/]")
-    shutil.copytree(project_path, safe_copy_path)
+        try:
+            shutil.copytree(
+                project_path,
+                clone_path,
+                ignore=shutil.ignore_patterns(
+                    ".git",
+                    ".venv",
+                    "venv",
+                    "__pycache__",
+                    ".pytest_cache"
+                )
+            )
+        except Exception as e:
+            self.ui.print_error(f"Failed to clone project: {e}")
+            sys.exit(1)
 
-    # Step 2: Show before structure
-    log_structure("Project Structure Before Cleanup", safe_copy_path)
+        print()
 
-    # Step 3: Handle requirements & README
-    handle_requirements(safe_copy_path, args.req)
-    handle_readme(safe_copy_path, args.readme)
+        # 🔁 IMPORTANT: use clone_path from here onward
+        inspector = ProjectInspector(clone_path, self.ui)
+        cleaner = ProjectCleaner(clone_path, self.ui)
+        packager = ProjectPackager(clone_path, self.ui)
 
-    # Step 4: Scan files/folders to delete
-    targets = scan_cleanup(safe_copy_path)
-
-    if not targets:
-        console.print("[green]No unnecessary files found 🎉[/]")
-    else:
-        console.rule("[bold red]Files & folders that WILL be deleted")
-        for item in targets:
-            console.print(f"[red]- {item.relative_to(safe_copy_path)}[/]")
-
-        if not ask_confirm("Proceed with cleanup?"):
-            console.print("[yellow]Cleanup aborted by user[/]")
-            return
-
-        apply_cleanup(targets)
-
-    # Step 5: Show after cleanup
-    log_structure("Project Structure After Cleanup", safe_copy_path)
-
-    # Step 6: Zip the safe copy
-    zip_project(safe_copy_path)
+        
+        # Initialize components
+        # inspector = ProjectInspector(project_path, self.ui)
+        # cleaner = ProjectCleaner(project_path, self.ui)
+        # packager = ProjectPackager(project_path, self.ui)
+        
+        # Check/create requirements.txt
+        if self.args.req or not inspector.check_requirements():
+            if self.args.req or self.ui.ask_yes_no("Create/validate requirements.txt?"):
+                inspector.create_requirements()
+        
+        # Check/create README.md
+        if self.args.readme or not inspector.check_readme():
+            if self.args.readme or self.ui.ask_yes_no("Create README.md if missing?"):
+                inspector.create_readme()
+        
+        print()
+        
+        # Clean junk files
+        self.ui.print_info("🧹 Cleaning junk files...")
+        cleaner.clean()
+        
+        print()
+        
+        # Create zip file
+        self.ui.print_info("📦 Creating zip file...")
+        zip_path = packager.create_zip()
+        
+        print()
+        
+        if zip_path:
+            self.ui.print_success("🎉 All done!")
+            self.ui.print_info(f"Zip file: {zip_path}")
+        else:
+            self.ui.print_error("Failed to create zip file")
+            sys.exit(1)
