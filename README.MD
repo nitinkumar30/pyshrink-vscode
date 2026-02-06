@@ -47,6 +47,12 @@ And yes — it does all this **without deleting anything important**.
 
 ---
 
+## Working
+
+![Working video](screenrecordings\pyshrink_working_video.mp4)
+
+---
+
 ## 🧠 Key Idea (Architect Brain Activated)
 
 This project is built using a **POM-inspired modular architecture**.
@@ -255,6 +261,7 @@ You can confidently say:
 > “Because maintainability is cheaper than regret.”
 
 Happy sharing 🚀
+
 
 
 
