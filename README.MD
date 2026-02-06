@@ -49,7 +49,7 @@ And yes — it does all this **without deleting anything important**.
 
 ## Working
 
-![Working video](screenrecordings\pyshrink_working_video.mp4)
+![Working video](screenrecordings/pyshrink_working_video.mp4)
 
 ---
 
@@ -261,6 +261,7 @@ You can confidently say:
 > “Because maintainability is cheaper than regret.”
 
 Happy sharing 🚀
+
 
 
 
