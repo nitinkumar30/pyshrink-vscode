@@ -49,7 +49,10 @@ And yes — it does all this **without deleting anything important**.
 
 ## Working
 
-[Working video](screenrecordings/pyshrink_working_video.mp4)
+<video width="640" height="360" controls>
+  <source src="screenrecordings/pyshrink_working_video.mp4" type="video/mp4" autoplay muted loop>
+  Your browser does not support the video tag.
+</video>
 
 ---
 
@@ -261,6 +264,7 @@ You can confidently say:
 > “Because maintainability is cheaper than regret.”
 
 Happy sharing 🚀
+
 
 
 
