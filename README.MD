@@ -5,7 +5,7 @@
 
 `pyshrink` is a **Python project sanitizer & packager**, built with a **POM-style framework architecture**, rich console output, and just enough sarcasm to make good engineering memorable.
 
-![VScode extension](images/Screenshot2026-02-05145843.png)
+![VScode extension](images/Screenshot2026-02-07102830.png)
 
 ---
 
@@ -261,6 +261,7 @@ You can confidently say:
 > “Because maintainability is cheaper than regret.”
 
 Happy sharing 🚀
+
 
 
 
