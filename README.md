@@ -1,261 +1,255 @@
-# 🚀 pyshrink
+# PyShrink – Clean & Shrink Python Projects in VS Code
 
-> Because sharing a Python project with `.venv`, `__pycache__`, and emotional baggage
-> is not a personality trait — it’s a problem.
+🚀 **PyShrink** is a Visual Studio Code extension that helps you **clean, shrink, and prepare Python projects for sharing** directly from your workspace.
 
-`pyshrink` is a **Python project sanitizer & packager**, built with a **POM-style framework architecture**, rich console output, and just enough sarcasm to make good engineering memorable.
-
-![VScode extension](images/Screenshot2026-02-05145843.png)
+It runs a Python-based cleanup CLI (`pyshrink_cli.py`) to remove unnecessary files and folders from a **cloned copy** of your project—keeping the original code completely safe.  
+PyShrink is ideal for **enterprise, internal, and restricted Git environments** where teams frequently share code as ZIPs instead of repositories.
 
 ---
 
-## 😤 The Problem (a very familiar story)
+## Working
 
-You want to share a Python project.
-
-You zip the folder.
-
-Inside that zip:
-
-- `.venv/` (why?)
-- `__pycache__/` (why x2?)
-- `.idea/` (so we know your IDE preferences?)
-- `*.pyc` (absolutely unnecessary)
-
-Your teammate:
-
-- deletes half the files
-- recreates their own virtualenv anyway
-- silently judges you
+<img
+  src="screenrecordings/pyshrink_vscodeExtension_GIF.gif"
+  alt="PyShrink VS Code extension"
+/>
 
 ---
 
-## 😌 The Solution
+## Why PyShrink?
 
-Run `pyshrink`.
-
-It will:
-
-- 🧹 Clean unnecessary files & folders
-- 📦 Package only what *actually matters*
-- 📜 Validate (or create) `requirements.txt`
-- 📘 Warn you about missing `README.md`
-- 🌈 Show **before & after folder structures**
-- 🤝 Work in **interactive** *or* **fully automated CLI mode**
-
-And yes — it does all this **without deleting anything important**.
+- Reduce project size before sharing
+- Avoid manual cleanup and repeated zipping
+- Keep original projects untouched
+- Works without Git or external services
+- Designed for corporate and internal workflows
 
 ---
 
-## 🧠 Key Idea (Architect Brain Activated)
+## Features
 
-This project is built using a **POM-inspired modular architecture**.
-
-> Each file does **one job**
-> No file knows more than it should
-> Chaos is not scalable
-
-Think **Page Object Model**, but for a CLI tool.
+- 🧹 Clean Python projects directly from VS Code
+- 🧪 Interactive cleanup mode
+- ⚙️ Run cleanup with custom CLI arguments
+- 📁 Automatically detects the active workspace folder
+- 🔒 Works on a cloned copy (original project is never modified)
+- 🖥️ Real-time output via VS Code notifications
 
 ---
 
-## 🏗 Project Architecture
+## Screenshots & Demo
+
+> _Screenshots and animations help users understand the workflow quickly._
+
+### Command Palette Integration
+![Command Palette](images/command-palette.png)
+
+### Interactive Cleanup
+![Interactive Cleanup](images/interactive-clean.gif)
+
+### Run with Arguments
+![Arguments Mode](images/arguments-mode.png)
+
+_(Add your screenshots/GIFs under an `images/` folder)_
+
+---
+
+## Commands (Aligned with `package.json`)
+
+The following commands are contributed by this extension:
+
+### **PyShrink: Clean Project**
+**Command ID:** `pyshrink.clean`
+
+Runs PyShrink in interactive mode using default behavior.
+
+---
+
+### **PyShrink: Run with Arguments**
+**Command ID:** `pyshrink.args`
+
+Prompts the user to enter CLI arguments and passes them directly to the PyShrink CLI.
+
+**Example input:**
+```
+
+--req --readme
+
+````
+
+Executed as:
+```bash
+python main.py --req --readme
+````
+
+---
+
+### **PyShrink: Hello**
+
+**Command ID:** `pyshrink.hello`
+
+Simple test command to verify that the extension is activated.
+
+---
+
+## Quick Setup (1 Minute)
+
+1. **Install Python 3**
+
+   * Ensure Python 3.x is installed and accessible via `python`
+
+2. **Open your project folder in VS Code**
+
+   * Use **File → Open Folder**
+   * Do not open individual files
+
+3. **Ensure PyShrink CLI exists**
+
+   * `pyshrink_cli.py` must be present in the workspace root
+
+4. **Run PyShrink**
+
+   * Press `Ctrl + Shift + P`
+   * Select **PyShrink: Clean Project**
+     or **PyShrink: Run with Arguments**
+
+---
+
+## Requirements
+
+To use **PyShrink**, the following prerequisites must be met:
+
+* **Python 3.x installed on the system**
+
+  ```bash
+  python --version
+  ```
+
+* **`python` available in system PATH**
+
+  * The extension spawns Python using the `python` command
+
+* **A workspace folder opened in VS Code**
+
+  * The extension does not work with single files
+
+* **`pyshrink_cli.py` present in the workspace root**
+
+  * This is the entry point for the cleanup logic
+
+> ⚠️ The extension does not install Python dependencies automatically.
+
+---
+
+## OS-Specific Notes
+
+### 🪟 Windows
+
+* Install Python with **“Add Python to PATH”** enabled
+* Restart VS Code after installation
+* Verify:
+
+  ```cmd
+  where python
+  ```
+
+---
+
+### 🍎 macOS
+
+* Install Python via official installer or Homebrew
+* Ensure `python` points to Python 3:
+
+  ```bash
+  python --version
+  ```
+
+---
+
+### 🐧 Linux
+
+* Install Python via package manager:
+
+  ```bash
+  sudo apt install python3
+  ```
+* Ensure `python` resolves correctly
+
+---
+
+## Expected Project Structure
 
 ```text
-pyshrink/
-├── pyshrink/
-│   ├── __init__.py
-│   ├── cli.py          → Argument parsing
-│   ├── console.py      → Rich UI, prompts & banners
-│   ├── logger.py       → Logging + before/after folder trees
-│   ├── inspector.py    → requirements.txt & README logic
-│   ├── cleaner.py      → Junk removal rules
-│   ├── packager.py     → Zip creation logic
-│   ├── config.py       → Centralized constants
-│   └── core.py         → Orchestration layer (the brain 🧠)
-│
-├── main.py             → Single entry point
+your-project/
+├── pyshrink_cli.py
+├── config.py
+├── src/
+├── tests/
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 🔌 How Everything Connects
+## Extension Settings
 
-```text
-main.py
-   ↓
-core.py
-   ↓
-────────────────────────────────────
-| cli | console | logger | inspector |
-| cleaner | packager | config        |
-────────────────────────────────────
+This extension does **not** add VS Code settings via `contributes.configuration`.
+
+All behavior is controlled through:
+
+* CLI arguments
+* `config.py` inside the project
+
+---
+
+## Common Setup Mistakes
+
+### ❌ No workspace folder found
+
+* Open the project folder, not a file
+
+### ❌ Python not found
+
+* Python not in PATH
+* Restart VS Code after installing Python
+
+### ❌ `pyshrink_cli.py` missing
+
+* Ensure the file exists at the workspace root
+
+### ❌ No visible output
+
+* Check **Help → Toggle Developer Tools** for logs
+
+---
+
+## Known Issues
+
+* Assumes `python` command (not `python3`)
+* Long output may be truncated in notifications
+* No progress bar UI
+* CLI arguments are not validated
+
+---
+
+## Release Notes
+
+### 1.0.0
+
+* Initial release
+* Interactive cleanup command
+* Argument-based execution
+* Python subprocess integration
+* Workspace auto-detection
+
+---
+
+## Keywords (Marketplace SEO)
+
+**python, cleanup, project-cleaner, shrink, zip, enterprise, internal-tools, automation, vscode-extension, python-tools**
+
+---
+
+**Enjoy using PyShrink 🚀**
+
 ```
-
-### Translation:
-
-* `main.py` → starts the program
-* `core.py` → decides **what happens & in what order**
-* Other modules → do **one focused task**, nothing more
-
-This makes the code:
-
-* easy to read
-* easy to test
-* easy to extend
-* very hard to accidentally break
-
----
-
-## 🧹 What Gets Cleaned
-
-Automatically removed:
-
-* `__pycache__/`
-* `.pytest_cache/`
-* `.idea/`
-* `.vscode/`
-* `.venv*/`
-* `*.pyc`
-
-Nothing else.
-No surprises.
-No “oops”.
-
----
-
-## 📦 Output Behavior
-
-If your project is located at:
-
-```text
-C:/WinUser/projects/main/chat/project1
-```
-
-Then the zip will be created at:
-
-```text
-C:/WinUser/projects/main/chat/project1.zip
-```
-
-📌 Outside the project directory
-📌 Named exactly like the project
-📌 Clean enough to send to anyone without apology
-
----
-
-## 🖥 How to Run pyshrink
-
-### 1️⃣ Interactive Mode (human-friendly)
-
-```bash
-python main.py
-```
-
-You’ll be asked:
-
-* project path
-* whether to create `requirements.txt`
-* whether to create `README.md`
-
-Great for first-time use.
-
----
-
-### 2️⃣ CLI / Automation Mode (CI-friendly)
-
-```bash
-python main.py --path "/your/project" --req --readme
-```
-
-What this does:
-
-* No questions
-* No prompts
-* No delays
-* Perfect for scripts, pipelines, and power users
-
----
-
-## 🎨 Rich Console Output
-
-Powered by **Rich**:
-
-* Colored logs
-* Folder trees
-* Warnings that actually stand out
-* Output you won’t hate reading
-
-Because CLI tools deserve UX too.
-
----
-
-![Output screenshot](images/Screenshot2026-02-05150525.png)
-
----
-
-## 📦 Requirements
-
-Python 3.9+
-
-```bash
-pip install rich
-```
-
-That’s it.
-No bloated dependency tree.
-No drama.
-
----
-
-## 🧪 Who This Is For
-
-* Developers who share projects often
-* Teams tired of bloated zip files
-* Architects who judge folder structures quietly
-* Anyone who has ever said:
-
-  > “Why is the zip 600MB?”
-  >
-
----
-
-## 🚀 Future Enhancements (Very Easy to Add)
-
-* `.pyshrinkignore`
-* `--dry-run`
-* Plugin-based cleaners
-* pip-installable CLI
-* CI/CD integration
-* Unit tests per module
-
-This architecture was built **for growth**, not just for today.
-
----
-
-## 📜 License
-
-MIT.
-
-Do whatever you want.
-Just don’t commit `.venv`.
-
----
-
-## 🏁 Final Note
-
-If someone asks:
-
-> “Why did you structure it this way?”
-
-You can confidently say:
-
-> “Because maintainability is cheaper than regret.”
-
-Happy sharing 🚀
-
-## Author
-
-[Nitin Kumar](https://linkedin.com/in/nitin30kumar/)

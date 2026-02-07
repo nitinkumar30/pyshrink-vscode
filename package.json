@@ -1,0 +1,28 @@
+{
+  "name": "pyshrink-vscode",
+  "displayName": "PyShrink: Python Projects, Minus the Junk",
+  "publisher": "nitinkumar30",
+  "version": "0.0.2",
+  "engines": { "vscode": "^1.85.0" },
+  "keywords": ["python", "cleanup", "packager"],
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nitinkumar30/pyshrink-vscode.git"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:pyshrink.help",
+    "onCommand:pyshrink.interactive",
+    "onCommand:pyshrink.withArgs",
+    "onCommand:pyshrink.fullCleanup"
+  ],
+  "contributes": {
+    "commands": [
+      { "command": "pyshrink.help", "title": "PyShrink: Help" },
+      { "command": "pyshrink.interactive", "title": "PyShrink: Interactive Mode" },
+      { "command": "pyshrink.withArgs", "title": "PyShrink: Run with Arguments" },
+      { "command": "pyshrink.fullCleanup", "title": "PyShrink: Full Cleanup" }
+    ]
+  }
+}

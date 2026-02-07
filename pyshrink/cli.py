@@ -19,7 +19,8 @@ Examples:
     
     parser.add_argument(
         "--path",
-        type=str,
+        # type=str,
+        nargs="+",
         help="Path to the Python project to clean"
     )
     
@@ -34,5 +35,15 @@ Examples:
         action="store_true",
         help="Automatically create README.md if missing"
     )
-    
+
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Full cleanup (no README, no requirements)"
+    )
+    args = parser.parse_args()
+
+    if args.path:
+        args.path = " ".join(args.path)
+
     return parser.parse_args()

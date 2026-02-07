@@ -17,6 +17,10 @@ class PyShrinkCore:
     def __init__(self):
         self.ui = ConsoleUI()
         self.args = parse_args()
+
+        # Normalize path (handles paths with spaces)
+        if isinstance(self.args.path, list):
+            self.args.path = " ".join(self.args.path)
     
     def run(self):
         """Run the application"""
@@ -73,10 +77,20 @@ class PyShrinkCore:
         packager = ProjectPackager(clone_path, self.ui)
 
         
-        # Initialize components
-        # inspector = ProjectInspector(project_path, self.ui)
-        # cleaner = ProjectCleaner(project_path, self.ui)
-        # packager = ProjectPackager(project_path, self.ui)
+        # if args.full:
+        #     generate_readme = False
+        #     generate_requirements = False
+        # else:
+        #     generate_readme = args.readme
+        #     generate_requirements = args.req
+
+        # --- FULL CLEANUP MODE ---
+        if self.args.full:
+            self.ui.print_info("Running full cleanup (no README, no requirements)")
+            # self.ui.print_info("🧹 Cleaning junk files...")
+            cleaner.clean()
+            # return
+
         
         # Check/create requirements.txt
         if self.args.req or not inspector.check_requirements():
