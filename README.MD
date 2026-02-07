@@ -49,7 +49,7 @@ And yes — it does all this **without deleting anything important**.
 
 ## Working
 
-![PyShrink working video](screenrecordings\pyshrink_vscodeExtension_GIF.gif)
+![PyShrink working video](https://github.com/nitinkumar30/pyshrink-vscode/blob/vscode-ext/screenrecordings/pyshrink_vscodeExtension_GIF.gif)
 
 ---
 
@@ -261,6 +261,7 @@ You can confidently say:
 > “Because maintainability is cheaper than regret.”
 
 Happy sharing 🚀
+
 
 
 
